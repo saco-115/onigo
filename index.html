@@ -423,7 +423,7 @@ function initGame() {
             timeDisplay.textContent = gameTime;
             scoreDisplay.textContent = score;
             coinDisplay.textContent = saveData.coins + earnedCoins;
-            if (gameTime % 10 === 0 && oni.speed < 7.0) oni.speed = Math.min(oni.speed + 0.1, 7.0);
+            if (gameTime % 10 === 0 && oni.speed < 10.0) oni.speed = Math.min(oni.speed + 0.1, 10.0);
             if (Math.random() < 0.4) spawnItem();
         }
     }, 1000);
