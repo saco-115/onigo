@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>フルーツ鬼ごっこ！〜ガチャ＆大脱走〜</title>
+    <title>フルーツ鬼ごっこ！〜スワイプ＆スキルボタン改良版〜</title>
     <style>
-        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: none; }
         body {
             margin: 0; padding: 0; background: #1a1a2e;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             color: #fff; display: flex; flex-direction: column;
             align-items: center; justify-content: center; min-height: 100vh; overflow: hidden;
         }
-        h1 { margin: 5px 0; font-size: 1.6rem; color: #ff6b81; text-shadow: 2px 2px #ff4757; text-align: center; }
+        h1 { margin: 5px 0; font-size: 1.4rem; color: #ff6b81; text-shadow: 2px 2px #ff4757; text-align: center; }
         
         #game-wrapper {
             display: flex;
@@ -27,12 +27,12 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            padding: 8px 12px;
+            padding: 6px 10px;
             background: rgba(0,0,0,0.5);
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: bold;
             border-radius: 8px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .stat-item span { color: #ffa502; }
         .coin-display { color: #f1c40f !important; }
@@ -58,112 +58,110 @@
         .overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.92);
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             z-index: 10; text-align: center; padding: 15px;
             overflow-y: auto;
         }
-        .overlay h2 { font-size: 2rem; color: #ff4757; margin: 5px 0 10px 0; }
-        .overlay p { font-size: 0.95rem; max-width: 500px; line-height: 1.4; margin-bottom: 12px; color: #dfe4ea; }
+        .overlay h2 { font-size: 1.8rem; color: #ff4757; margin: 5px 0 10px 0; }
+        .overlay p { font-size: 0.9rem; max-width: 500px; line-height: 1.4; margin-bottom: 12px; color: #dfe4ea; }
 
         .btn {
-            background: #ff4757; color: white; border: none; padding: 10px 25px;
-            font-size: 1.1rem; font-weight: bold; border-radius: 30px; cursor: pointer;
-            transition: 0.2s; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); margin: 5px;
+            background: #ff4757; color: white; border: none; padding: 10px 22px;
+            font-size: 1rem; font-weight: bold; border-radius: 30px; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); margin: 4px;
         }
         .btn:hover { background: #ff6b81; transform: scale(1.05); }
         .btn-gacha {
             background: linear-gradient(135deg, #f1c40f, #e67e22);
             box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
         }
-        .btn-gacha:hover { background: linear-gradient(135deg, #f39c12, #d35400); }
+        .btn-zukan {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
 
         .character-select {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
             width: 100%;
             max-width: 450px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 4px;
         }
         .char-card {
             background: rgba(255,255,255,0.1);
             border: 3px solid transparent;
             border-radius: 10px;
-            padding: 8px;
+            padding: 6px;
             cursor: pointer;
             transition: 0.2s;
             text-align: center;
         }
         .char-card.selected { border-color: #ffa502; background: rgba(255,165,2,0.2); }
         .char-card.locked { opacity: 0.5; filter: grayscale(0.8); cursor: not-allowed; }
-        .char-card h3 { margin: 2px 0; color: #ffa502; font-size: 1rem; }
-        .char-card p { font-size: 0.7rem; margin: 2px 0 0 0; color: #ced6e0; }
+        .char-card h3 { margin: 2px 0; color: #ffa502; font-size: 0.95rem; }
+        .char-card p { font-size: 0.65rem; margin: 2px 0 0 0; color: #ced6e0; }
+
+        #zukan-screen { display: none; }
+        .zukan-tabs {
+            display: flex; gap: 10px; margin-bottom: 10px;
+        }
+        .tab-btn {
+            background: #2f3542; color: #fff; border: 2px solid #718093;
+            padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold;
+        }
+        .tab-btn.active { background: #ff4757; border-color: #ff6b81; }
+        .zukan-list {
+            display: grid; grid-template-columns: 1fr; gap: 8px;
+            width: 100%; max-width: 450px; max-height: 220px; overflow-y: auto; padding: 4px; text-align: left;
+        }
+        .zukan-item {
+            background: rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 12px; border-left: 4px solid #ff4757;
+        }
+        .zukan-item h4 { margin: 0 0 4px 0; color: #ffa502; font-size: 1rem; }
+        .zukan-item p { margin: 0; font-size: 0.75rem; color: #dfe4ea; line-height: 1.3; }
 
         #gacha-screen { display: none; }
         .gacha-box {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            width: 100%;
-            max-width: 400px;
-            border: 2px dashed #f1c40f;
+            background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-bottom: 12px; width: 100%; max-width: 400px; border: 2px dashed #f1c40f;
         }
-        #gacha-result {
-            font-size: 1.2rem;
-            color: #f1c40f;
-            font-weight: bold;
-            margin: 10px 0;
-            min-height: 40px;
-        }
+        #gacha-result { font-size: 1.1rem; color: #f1c40f; font-weight: bold; margin: 8px 0; min-height: 35px; }
 
-        .controls-area {
+        .bottom-control-bar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             width: 100%;
-            margin-top: 8px;
-            padding: 0 5px;
+            margin-top: 6px;
+            padding: 0 4px;
         }
-        .d-pad {
-            display: grid;
-            grid-template-columns: repeat(3, 50px);
-            grid-template-rows: repeat(3, 50px);
-            gap: 2px;
+        .controls-hint {
+            font-size: 0.8rem; color: #a4b0be; text-align: left;
         }
-        .d-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            border-radius: 8px;
+        .skill-button {
+            background: linear-gradient(135deg, #ff4757, #ff6b81);
             color: white;
-            font-size: 1.2rem;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            width: 65px;
+            height: 65px;
             font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
+            flex-direction: column;
+            outline: none;
         }
-        .d-btn:active, .d-btn.active { background: #ff4757; }
-        .action-btns {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .action-btn {
-            background: #ff4757;
-            border: none;
-            border-radius: 50%;
-            width: 75px;
-            height: 75px;
-            color: white;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .action-btn:active { transform: scale(0.95); background: #ff6b81; }
-        .menu-btns { display: flex; gap: 10px; justify-content: center; }
+        .skill-button:active { transform: scale(0.92); background: #ff3838; }
+        .menu-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     </style>
 </head>
 <body>
@@ -182,12 +180,23 @@
 
             <div id="start-screen" class="overlay">
                 <h2>フルーツ大脱走！</h2>
-                <p>鬼から逃げてコインを稼ぎ、ガチャで新しいキャラを仲間にしよう！</p>
+                <p>画面をスライドして移動！下のスキルボタンでいつでも技が発動できるよ！</p>
                 <div class="character-select" id="char-select-grid"></div>
                 <div class="menu-btns">
                     <button class="btn" id="start-btn">ゲームスタート！</button>
-                    <button class="btn btn-gacha" id="open-gacha-btn">🎁 キャラガチャ (100枚)</button>
+                    <button class="btn btn-gacha" id="open-gacha-btn">🎁 ガチャ (100枚)</button>
+                    <button class="btn btn-zukan" id="open-zukan-btn">📖 図鑑</button>
                 </div>
+            </div>
+
+            <div id="zukan-screen" class="overlay">
+                <h2>キャラクター図鑑</h2>
+                <div class="zukan-tabs">
+                    <button class="tab-btn active" id="tab-ally">味方キャラ</button>
+                    <button class="tab-btn" id="tab-enemy">敵キャラ</button>
+                </div>
+                <div class="zukan-list" id="zukan-content-list"></div>
+                <button class="btn" id="close-zukan-btn" style="background: #718093; margin-top: 10px;">もどる</button>
             </div>
 
             <div id="gacha-screen" class="overlay" style="display: none;">
@@ -205,20 +214,20 @@
                 <p id="result-text">よく頑張りました！</p>
                 <div class="menu-btns">
                     <button class="btn" id="restart-btn">もう一度プレイ</button>
-                    <button class="btn btn-gacha" id="gameover-gacha-btn">🎁 ガチャへ</button>
+                    <button class="btn btn-gacha" id="gameover-gacha-btn">🎁 ガチャ</button>
+                    <button class="btn btn-zukan" id="gameover-zukan-btn">📖 図鑑</button>
                 </div>
             </div>
         </div>
 
-        <div class="controls-area">
-            <div class="d-pad">
-                <div></div><button class="d-btn" id="btn-up">▲</button><div></div>
-                <button class="d-btn" id="btn-left">◀</button><div></div><button class="d-btn" id="btn-right">▶</button>
-                <div></div><button class="d-btn" id="btn-down">▼</button><div></div>
+        <div class="bottom-control-bar">
+            <div class="controls-hint">
+                💡 指で画面をスライドして移動！<br>
+                右下の<b>【スキル】ボタン</b>でいつでも発動！
             </div>
-            <div class="action-btns">
-                <button class="action-btn" id="btn-skill">スキル<br>[SPACE]</button>
-            </div>
+            <button class="skill-button" id="mobile-skill-btn">
+                スキル<br>[ ⚡ ]
+            </button>
         </div>
     </div>
 
@@ -227,14 +236,22 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const startScreen = document.getElementById('start-screen');
+const zukanScreen = document.getElementById('zukan-screen');
 const gachaScreen = document.getElementById('gacha-screen');
 const gameoverScreen = document.getElementById('gameover-screen');
+
 const startBtn = document.getElementById('start-btn');
 const restartBtn = document.getElementById('restart-btn');
 const openGachaBtn = document.getElementById('open-gacha-btn');
 const closeGachaBtn = document.getElementById('close-gacha-btn');
 const spinGachaBtn = document.getElementById('spin-gacha-btn');
 const gameOverGachaBtn = document.getElementById('gameover-gacha-btn');
+const openZukanBtn = document.getElementById('open-zukan-btn');
+const closeZukanBtn = document.getElementById('close-zukan-btn');
+const gameOverZukanBtn = document.getElementById('gameover-zukan-btn');
+const tabAlly = document.getElementById('tab-ally');
+const tabEnemy = document.getElementById('tab-enemy');
+const mobileSkillBtn = document.getElementById('mobile-skill-btn');
 
 const timeDisplay = document.getElementById('time-display');
 const scoreDisplay = document.getElementById('score-display');
@@ -243,6 +260,7 @@ const skillCdDisplay = document.getElementById('skill-cd');
 const resultText = document.getElementById('result-text');
 const gachaResult = document.getElementById('gacha-result');
 const charSelectGrid = document.getElementById('char-select-grid');
+const zukanContentList = document.getElementById('zukan-content-list');
 
 let saveData = JSON.parse(localStorage.getItem('fruit_tag_save')) || {
     coins: 50,
@@ -253,21 +271,28 @@ function saveGame() {
     localStorage.setItem('fruit_tag_save', JSON.stringify(saveData));
 }
 
-const characters = {
-    strawberry: { name: 'イチゴ', desc: '攻撃: 種飛ばし / 防御: ヘタ盾' },
-    grape: { name: 'ブドウ', desc: 'スキル: 分身バラバラ＆合体' },
-    watermelon: { name: 'スイカ', desc: '攻撃: 種地雷 / 防御: 頑丈な皮' },
-    banana: { name: 'バナナ', desc: '攻撃: 皮トラップ / 防御: ダッシュ' },
-    melon: { name: 'メロン', desc: 'スキル: 爆弾網メロンネット' },
-    peach: { name: 'モモ', desc: 'スキル: 桃源郷バリア＆回復' }
+const allyCharacters = {
+    strawberry: { name: '🍓 イチゴ', desc: '攻撃: 種飛ばし / 防御: ヘタ盾', detail: '甘酸っぱい正義の味方。ピンチの時はヘタの盾で鬼を弾き返す！' },
+    grape: { name: '🍇 ブドウ', desc: 'スキル: 分身バラバラ＆合体', detail: '粒がバラバラに分身して鬼を盛大に惑わせるトリッキーなファイター。' },
+    watermelon: { name: '🍉 スイカ', desc: '攻撃: 種地雷 / 防御: 頑丈な皮', detail: '硬い皮と重い体躯が自慢のタンク役。地雷で鬼の足止めをする。' },
+    banana: { name: '🍌 バナナ', desc: '攻撃: 皮トラップ / 防御: ダッシュ', detail: '驚異的な俊足とバナナの皮トラップで鬼を派手に転ばせる。' },
+    melon: { name: '🍈 メロン', desc: 'スキル: 爆弾網メロンネット', detail: '高級感あふれる網目模様のパワー系フルーツ。周囲に種をばらまく。' },
+    peach: { name: '🍑 モモ', desc: 'スキル: 桃源郷バリア＆回復', detail: '優しく包み込むようなオーラで高得点ボーナスをもたらす幸運のモモ。' }
 };
 
+const enemyCharacters = [
+    { name: '🍴 コックさん鬼', desc: 'スピード: 普通 / 脅威度: ★☆☆', detail: 'キッチンから脱走したフルーツたちを狙う最初のコック。フォークとナイフが武器。' },
+    { name: '🔥 激辛シェフ鬼', desc: 'スピード: やや速い / 脅威度: ★★☆', detail: '怒ると足が速くなる熱血シェフ。執拗にフルーツを追い回す。' },
+    { name: '⭐ 黄金グルメ鬼', desc: 'スピード: 高速 / 脅威度: ★★★', detail: '制限時間終盤に現れる最凶の鬼。捕まると一瞬で食べられてしまうので要注意。' }
+];
+
 let selectedChar = 'strawberry';
+let zukanTab = 'ally';
 
 function updateCharSelect() {
     charSelectGrid.innerHTML = '';
-    Object.keys(characters).forEach(key => {
-        let char = characters[key];
+    Object.keys(allyCharacters).forEach(key => {
+        let char = allyCharacters[key];
         let isUnlocked = saveData.unlocked.includes(key);
         let isSelected = selectedChar === key;
 
@@ -286,21 +311,46 @@ function updateCharSelect() {
 }
 updateCharSelect();
 
-openGachaBtn.addEventListener('click', () => {
-    startScreen.style.display = 'none';
-    gachaScreen.style.display = 'flex';
-    gachaResult.textContent = '何が出るかな…？';
-});
-closeGachaBtn.addEventListener('click', () => {
-    gachaScreen.style.display = 'none';
-    startScreen.style.display = 'flex';
-    updateCharSelect();
-});
-gameOverGachaBtn.addEventListener('click', () => {
-    gameoverScreen.style.display = 'none';
-    gachaScreen.style.display = 'flex';
-    gachaResult.textContent = '何が出るかな…？';
-});
+function renderZukan() {
+    zukanContentList.innerHTML = '';
+    if (zukanTab === 'ally') {
+        Object.keys(allyCharacters).forEach(key => {
+            let char = allyCharacters[key];
+            let isUnlocked = saveData.unlocked.includes(key);
+            let div = document.createElement('div');
+            div.className = 'zukan-item';
+            div.innerHTML = `
+                <h4>${char.name} ${isUnlocked ? '' : '（未解放 🔒）'}</h4>
+                <p><b>能力:</b> ${char.desc}</p>
+                <p><b>解説:</b> ${isUnlocked ? char.detail : 'ガチャで当てると詳細が解放されます！'}</p>
+            `;
+            zukanContentList.appendChild(div);
+        });
+    } else {
+        enemyCharacters.forEach(enemy => {
+            let div = document.createElement('div');
+            div.className = 'zukan-item';
+            div.style.borderLeftColor = '#e67e22';
+            div.innerHTML = `
+                <h4>${enemy.name}</h4>
+                <p><b>特徴:</b> ${enemy.desc}</p>
+                <p><b>解説:</b> ${enemy.detail}</p>
+            `;
+            zukanContentList.appendChild(div);
+        });
+    }
+}
+
+tabAlly.addEventListener('click', () => { tabAlly.classList.add('active'); tabEnemy.classList.remove('active'); zukanTab = 'ally'; renderZukan(); });
+tabEnemy.addEventListener('click', () => { tabEnemy.classList.add('active'); tabAlly.classList.remove('active'); zukanTab = 'enemy'; renderZukan(); });
+
+openZukanBtn.addEventListener('click', () => { startScreen.style.display = 'none'; zukanScreen.style.display = 'flex'; renderZukan(); });
+closeZukanBtn.addEventListener('click', () => { zukanScreen.style.display = 'none'; startScreen.style.display = 'flex'; updateCharSelect(); });
+gameOverZukanBtn.addEventListener('click', () => { gameoverScreen.style.display = 'none'; zukanScreen.style.display = 'flex'; renderZukan(); });
+
+openGachaBtn.addEventListener('click', () => { startScreen.style.display = 'none'; gachaScreen.style.display = 'flex'; gachaResult.textContent = '何が出るかな…？'; });
+closeGachaBtn.addEventListener('click', () => { gachaScreen.style.display = 'none'; startScreen.style.display = 'flex'; updateCharSelect(); });
+gameOverGachaBtn.addEventListener('click', () => { gameoverScreen.style.display = 'none'; gachaScreen.style.display = 'flex'; gachaResult.textContent = '何が出るかな…？'; });
 
 spinGachaBtn.addEventListener('click', () => {
     if (saveData.coins < 100) {
@@ -311,7 +361,7 @@ spinGachaBtn.addEventListener('click', () => {
     saveGame();
     coinDisplay.textContent = saveData.coins;
 
-    let allKeys = Object.keys(characters);
+    let allKeys = Object.keys(allyCharacters);
     let lockedKeys = allKeys.filter(k => !saveData.unlocked.includes(k));
 
     let gotKey;
@@ -319,7 +369,7 @@ spinGachaBtn.addEventListener('click', () => {
         gotKey = lockedKeys[Math.floor(Math.random() * lockedKeys.length)];
         saveData.unlocked.push(gotKey);
         saveGame();
-        gachaResult.innerHTML = `🎉 新キャラ【 ${characters[gotKey].name} 】GET! 🎉`;
+        gachaResult.innerHTML = `🎉 新キャラ【 ${allyCharacters[gotKey].name} 】GET! 🎉`;
     } else {
         saveData.coins += 150;
         saveGame();
@@ -331,9 +381,41 @@ spinGachaBtn.addEventListener('click', () => {
 let gameState = 'START';
 let gameTime = 0, score = 0, earnedCoins = 0;
 let timerInterval = null, keys = {};
-let player = { x: 400, y: 250, radius: 20, speed: 4, skillCdTimer: 0, isShielding: false, shieldTimer: 0, isSplit: false, splitTimer: 0, clones: [] };
-let oni = { x: 100, y: 100, radius: 24, speed: 3.5, stunTimer: 0 };
+let player = { x: 400, y: 250, radius: 20, speed: 4.5, skillCdTimer: 0, isShielding: false, shieldTimer: 0, isSplit: false, splitTimer: 0, clones: [] };
+let oni = { x: 100, y: 100, radius: 24, speed: 2.5, stunTimer: 0 };
 let seeds = [], traps = [], items = [];
+
+let activeTouchId = null;
+let targetX = 400, targetY = 250;
+
+// キャンバス内での指スライド移動（他の指のタッチと干渉しないよう識別）
+canvas.addEventListener('pointerdown', (e) => {
+    if (activeTouchId === null) {
+        activeTouchId = e.pointerId;
+        const rect = canvas.getBoundingClientRect();
+        targetX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        targetY = (e.clientY - rect.top) * (canvas.height / rect.height);
+    }
+});
+canvas.addEventListener('pointermove', (e) => {
+    if (e.pointerId === activeTouchId) {
+        const rect = canvas.getBoundingClientRect();
+        targetX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        targetY = (e.clientY - rect.top) * (canvas.height / rect.height);
+    }
+});
+canvas.addEventListener('pointerup', (e) => {
+    if (e.pointerId === activeTouchId) activeTouchId = null;
+});
+canvas.addEventListener('pointercancel', (e) => {
+    if (e.pointerId === activeTouchId) activeTouchId = null;
+});
+
+// スキルボタン専用タップ処理（移動中の指とは別に独立して押せる）
+mobileSkillBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (gameState === 'PLAYING') useSkill();
+});
 
 window.addEventListener('keydown', e => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyS', 'KeyA', 'KeyD'].includes(e.code)) {
@@ -343,27 +425,6 @@ window.addEventListener('keydown', e => {
     if (e.code === 'Space' && gameState === 'PLAYING') useSkill();
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
-
-function bindButton(id, code) {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    const pressOn = (e) => { e.preventDefault(); keys[code] = true; btn.classList.add('active'); };
-    const pressOff = (e) => { e.preventDefault(); keys[code] = false; btn.classList.remove('active'); };
-    btn.addEventListener('mousedown', pressOn);
-    btn.addEventListener('mouseup', pressOff);
-    btn.addEventListener('mouseleave', pressOff);
-    btn.addEventListener('touchstart', pressOn, {passive: false});
-    btn.addEventListener('touchend', pressOff, {passive: false});
-}
-
-bindButton('btn-up', 'ArrowUp');
-bindButton('btn-down', 'ArrowDown');
-bindButton('btn-left', 'ArrowLeft');
-bindButton('btn-right', 'ArrowRight');
-
-document.getElementById('btn-skill').addEventListener('click', () => {
-    if (gameState === 'PLAYING') useSkill();
-});
 
 function useSkill() {
     if (player.skillCdTimer > 0) return;
@@ -388,7 +449,7 @@ function useSkill() {
     } else if (selectedChar === 'banana') {
         traps.push({ x: player.x, y: player.y, radius: 14, type: 'banana_peel' });
         player.speed = 7;
-        setTimeout(() => { player.speed = 4; }, 1500);
+        setTimeout(() => { player.speed = 4.5; }, 1500);
         player.skillCdTimer = 200;
     } else if (selectedChar === 'melon') {
         player.isShielding = true; player.shieldTimer = 150;
@@ -409,9 +470,10 @@ restartBtn.addEventListener('click', () => { gameoverScreen.style.display = 'non
 
 function initGame() {
     gameState = 'PLAYING'; gameTime = 0; score = 0; earnedCoins = 0;
-    player.x = 400; player.y = 250; player.speed = 4; player.skillCdTimer = 0;
+    player.x = 400; player.y = 250; player.speed = 4.5; player.skillCdTimer = 0;
     player.isShielding = false; player.shieldTimer = 0; player.isSplit = false; player.splitTimer = 0; player.clones = [];
-    oni.x = 100; oni.y = 100; oni.stunTimer = 0; oni.speed = 3.5;
+    targetX = player.x; targetY = player.y; activeTouchId = null;
+    oni.x = 100; oni.y = 100; oni.stunTimer = 0; oni.speed = 2.5;
     seeds = []; traps = []; items = [];
     spawnItem(); spawnItem();
 
@@ -423,7 +485,7 @@ function initGame() {
             timeDisplay.textContent = gameTime;
             scoreDisplay.textContent = score;
             coinDisplay.textContent = saveData.coins + earnedCoins;
-            if (gameTime % 10 === 0 && oni.speed < 10.0) oni.speed = Math.min(oni.speed + 0.1, 10.0);
+            if (gameTime % 10 === 0 && oni.speed < 5.5) oni.speed += 0.1;
             if (Math.random() < 0.4) spawnItem();
         }
     }, 1000);
@@ -435,13 +497,29 @@ function spawnItem() {
 
 function update() {
     if (gameState !== 'PLAYING') return;
+
     let moveX = 0, moveY = 0;
     if (keys['ArrowUp'] || keys['KeyW']) moveY -= 1;
     if (keys['ArrowDown'] || keys['KeyS']) moveY += 1;
     if (keys['ArrowLeft'] || keys['KeyA']) moveX -= 1;
     if (keys['ArrowRight'] || keys['KeyD']) moveX += 1;
-    if (moveX !== 0 && moveY !== 0) { moveX *= 0.7071; moveY *= 0.7071; }
-    player.x += moveX * player.speed; player.y += moveY * player.speed;
+
+    if (moveX !== 0 || moveY !== 0) {
+        if (moveX !== 0 && moveY !== 0) { moveX *= 0.7071; moveY *= 0.7071; }
+        player.x += moveX * player.speed;
+        player.y += moveY * player.speed;
+        targetX = player.x;
+        targetY = player.y;
+    } else if (activeTouchId !== null) {
+        let dx = targetX - player.x;
+        let dy = targetY - player.y;
+        let dist = Math.hypot(dx, dy);
+        if (dist > 2) {
+            player.x += (dx / dist) * Math.min(player.speed, dist);
+            player.y += (dy / dist) * Math.min(player.speed, dist);
+        }
+    }
+
     player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
     player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
 
@@ -457,15 +535,15 @@ function update() {
         if (player.splitTimer <= 0) player.isSplit = false;
     }
 
-    if (player.skillCdTimer <= 0) { skillCdDisplay.textContent = 'OK! [SPACE]'; skillCdDisplay.style.color = '#7bed9f'; }
+    if (player.skillCdTimer <= 0) { skillCdDisplay.textContent = 'OK! [ボタン]'; skillCdDisplay.style.color = '#7bed9f'; }
     else { skillCdDisplay.textContent = (player.skillCdTimer / 60).toFixed(1) + '秒'; skillCdDisplay.style.color = '#ffa502'; }
 
-    let targetX = player.x, targetY = player.y;
+    let otX = player.x, otY = player.y;
     if (player.isSplit && player.clones.length > 0 && Math.random() < 0.3) {
         let rc = player.clones[Math.floor(Math.random() * player.clones.length)];
-        targetX = rc.x; targetY = rc.y;
+        otX = rc.x; otY = rc.y;
     }
-    let angleToPlayer = Math.atan2(targetY - oni.y, targetX - oni.x);
+    let angleToPlayer = Math.atan2(otY - oni.y, otX - oni.x);
     let currentOniSpeed = oni.speed;
     if (oni.stunTimer > 0) { oni.stunTimer--; currentOniSpeed *= 0.3; }
     oni.x += Math.cos(angleToPlayer) * currentOniSpeed;
